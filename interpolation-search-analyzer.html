@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SearchLab — Interpolation Search Analysis</title>
+  <style>
+    :root { --ink:#eaf1ff; --muted:#9daec9; --panel:#111a2d; --line:#273653; --blue:#6d8cff; --teal:#43d6c4; --amber:#ffc86b; --red:#ff7986; }
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 10% 5%,#1d3470 0,transparent 29%),radial-gradient(circle at 88% 16%,#134c55 0,transparent 25%),#080d19}
+    .wrap{max-width:1160px;margin:auto;padding:42px 24px 54px}.eyebrow{color:var(--teal);font-size:.76rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;margin:0 0 12px}h1{font-size:clamp(2rem,5vw,3.8rem);letter-spacing:-.055em;line-height:1;margin:0;max-width:760px}h1 span{color:var(--blue)}.lede{color:var(--muted);line-height:1.65;max-width:640px;margin:18px 0 32px}
+    .grid{display:grid;grid-template-columns:1.04fr .96fr;gap:18px}.card{background:linear-gradient(145deg,rgba(25,37,65,.94),rgba(13,21,38,.94));border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 16px 38px rgba(0,0,0,.2)}h2{font-size:1.08rem;margin:0 0 19px;letter-spacing:-.02em}.label{display:flex;justify-content:space-between;gap:15px;font-size:.83rem;font-weight:700;margin:15px 0 8px}.hint{font-weight:500;color:var(--muted)}textarea,input{width:100%;border:1px solid #394968;border-radius:10px;background:#09111f;color:var(--ink);font:inherit;outline:none}textarea{height:94px;padding:12px;resize:vertical;line-height:1.5}input{padding:12px}textarea:focus,input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(109,140,255,.14)}.actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}button{border:0;border-radius:9px;padding:12px 16px;font:700 .88rem inherit;cursor:pointer;transition:.18s transform,.18s opacity}button:hover{transform:translateY(-1px)}.primary{background:var(--blue);color:#081027}.secondary{background:#23324e;color:var(--ink)}.message{min-height:22px;color:var(--red);font-size:.83rem;margin:13px 0 0}
+    .hero-result{border-radius:13px;padding:17px;background:#0a1324;border:1px solid #2c3d5c}.result-row{display:flex;align-items:baseline;justify-content:space-between;gap:14px}.result-label{font-size:.76rem;color:var(--muted);text-transform:uppercase;font-weight:800;letter-spacing:.09em}.index{font-size:2rem;font-weight:800;color:var(--teal);letter-spacing:-.07em}.found{color:var(--muted);font-size:.9rem;margin:9px 0 0}.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.stat{border:1px solid #293955;background:rgba(9,17,31,.62);padding:13px;border-radius:11px}.stat small{color:var(--muted);display:block;margin-bottom:4px}.stat strong{font-size:1.15rem}.compare{grid-column:1/-1;margin-top:2px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.87rem}th,td{padding:13px 10px;text-align:right;border-bottom:1px solid #263653}th{color:var(--muted);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}th:first-child,td:first-child{text-align:left}tbody tr:last-child td{border-bottom:0}.key{display:flex;gap:16px;align-items:center;color:var(--muted);font-size:.82rem;margin:0 0 10px}.dot{width:9px;height:9px;border-radius:100%;display:inline-block;margin-right:5px}.footer-note{margin-top:20px;color:var(--muted);font-size:.78rem;line-height:1.5}@media(max-width:780px){.grid{grid-template-columns:1fr}.wrap{padding:28px 16px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="eyebrow">Algorithm performance workspace</p>
+    <h1>Search smarter with <span>real measurements.</span></h1>
+    <p class="lede">Explore how interpolation search locates values in sorted data, then compare it directly against binary search.</p>
+    <section class="grid">
+      <article class="card">
+        <h2>Try a custom search</h2>
+        <label class="label" for="array">Sorted numeric array <span class="hint">comma or space separated</span></label>
+        <textarea id="array">2, 5, 10, 15, 23, 35, 48, 60, 75, 90, 105, 120</textarea>
+        <label class="label" for="target">Target value</label>
+        <input id="target" type="number" value="35" />
+        <div class="actions"><button class="primary" id="run">Run search</button><button class="secondary" id="example">Restore example</button></div>
+        <p class="message" id="message" aria-live="polite"></p>
+      </article>
+      <article class="card">
+        <h2>Search result</h2>
+        <div class="hero-result"><div class="result-row"><span class="result-label">Interpolation search</span><span class="index" id="index">Index 5</span></div><p class="found" id="found">35 found in the provided array.</p></div>
+        <div class="stat-grid"><div class="stat"><small>Comparisons</small><strong id="isComp">1</strong></div><div class="stat"><small>Average time</small><strong id="isTime">—</strong></div><div class="stat"><small>Binary comparisons</small><strong id="bsComp">3</strong></div><div class="stat"><small>Binary avg. time</small><strong id="bsTime">—</strong></div></div>
+      </article>
+      <article class="card compare">
+        <h2>Performance analysis</h2><div class="key"><span><i class="dot" style="background:var(--teal)"></i>Interpolation Search</span><span><i class="dot" style="background:var(--blue)"></i>Binary Search</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Array size</th><th>IS time (ms)</th><th>BS time (ms)</th><th>IS comparisons</th><th>BS comparisons</th></tr></thead><tbody id="performance"></tbody></table></div>
+        <p class="footer-note">Each result is an average of 100 searches for a randomly selected value. Your exact timings will vary by device and browser.</p>
+      </article>
+    </section>
+  </main>
+  <script>
+    const $=id=>document.getElementById(id);
+    function interpolationSearch(arr,target){let low=0,high=arr.length-1,comparisons=0;while(low<=high&&arr[low]<=target&&target<=arr[high]){comparisons++;if(low===high)return [arr[low]===target?low:-1,comparisons];if(arr[high]===arr[low])break;let pos=low+Math.floor(((target-arr[low])*(high-low))/(arr[high]-arr[low]));if(arr[pos]===target)return[pos,comparisons];if(arr[pos]<target)low=pos+1;else high=pos-1}return[-1,comparisons]}
+    function binarySearch(arr,target){let low=0,high=arr.length-1,comparisons=0;while(low<=high){comparisons++;let mid=Math.floor((low+high)/2);if(arr[mid]===target)return[mid,comparisons];if(arr[mid]<target)low=mid+1;else high=mid-1}return[-1,comparisons]}
+    function averageTime(fn,arr,target){const start=performance.now();let outcome;for(let i=0;i<100;i++)outcome=fn(arr,target);return [outcome,(performance.now()-start)/100]}
+    function parse(){const arr=$("array").value.trim().split(/[\s,]+/).filter(Boolean).map(Number);const target=Number($("target").value);if(!arr.length||arr.some(n=>!Number.isFinite(n))||!Number.isFinite(target))throw Error("Enter valid numbers for the array and target.");if(arr.some((n,i)=>i&&n<arr[i-1]))throw Error("The array must be sorted from smallest to largest.");return[arr,target]}
+    function run(){try{const [arr,target]=parse();$("message").textContent="";const [[idx,isC],isT]=averageTime(interpolationSearch,arr,target);const [[,bsC],bsT]=averageTime(binarySearch,arr,target);$("index").textContent=idx<0?"Not found":"Index "+idx;$("found").textContent=idx<0?`${target} is not present in the provided array.`:`${target} found in the provided array.`;$("isComp").textContent=isC;$("bsComp").textContent=bsC;$("isTime").textContent=isT.toFixed(4)+" ms";$("bsTime").textContent=bsT.toFixed(4)+" ms"}catch(e){$("message").textContent=e.message}}
+    function renderPerformance(){let html="";for(const size of [1000,5000,10000,50000,100000]){const arr=Array.from({length:size},(_,i)=>i*10+Math.floor(Math.random()*7));const target=arr[Math.floor(Math.random()*size)];const [[,ic],it]=averageTime(interpolationSearch,arr,target);const [[,bc],bt]=averageTime(binarySearch,arr,target);html+=`<tr><td>${size.toLocaleString()}</td><td>${it.toFixed(4)}</td><td>${bt.toFixed(4)}</td><td>${ic}</td><td>${bc}</td></tr>`}$('performance').innerHTML=html}
+    $('run').onclick=run;$('example').onclick=()=>{$('array').value='2, 5, 10, 15, 23, 35, 48, 60, 75, 90, 105, 120';$('target').value=35;run()};run();renderPerformance();
+  </script>
+</body>
+</html>
